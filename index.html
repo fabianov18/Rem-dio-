@@ -5,266 +5,145 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Meu Assistente de Saúde</title>
     <style>
-        :root {
-            --bg-color: #f7f9fc;
-            --primary: #0056b3;
-            --success: #28a745;
-            --text: #222;
-            --alert: #d9534f;
-        }
-
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-color: var(--bg-color);
-            color: var(--text);
-            margin: 0;
-            padding-bottom: 100px; 
-        }
-
-        /* Barra de Usuário */
-        .user-bar {
-            background: white;
-            padding: 20px;
-            display: flex;
-            align-items: center;
-            gap: 15px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
-            border-bottom: 3px solid var(--primary);
-        }
-
-        .user-photo {
-            width: 60px; height: 60px;
-            background: #ddd;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 30px;
-        }
-
-        .user-info h2 { margin: 0; font-size: 1.2rem; color: #555; }
-        .user-info input { 
-            border: none; font-size: 1.5rem; font-weight: bold; 
-            color: var(--primary); width: 100%; outline: none;
-        }
-
-        /* Lista de Remédios */
+        :root { --bg-color: #f7f9fc; --primary: #0056b3; --success: #28a745; --text: #222; --alert: #d9534f; }
+        body { font-family: 'Segoe UI', sans-serif; background-color: var(--bg-color); color: var(--text); margin: 0; padding-bottom: 100px; user-select: none; }
+        .user-bar { background: white; padding: 20px; display: flex; align-items: center; gap: 15px; box-shadow: 0 2px 10px rgba(0,0,0,0.05); border-bottom: 3px solid var(--primary); }
+        .user-photo { width: 60px; height: 60px; background: #ddd; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 30px; }
+        .user-info input { border: none; font-size: 1.5rem; font-weight: bold; color: var(--primary); width: 100%; outline: none; }
         .container { padding: 15px; }
-        
-        .remedio-card {
-            background: white;
-            border-radius: 20px;
-            padding: 20px;
-            margin-bottom: 20px;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.08);
-            border-left: 12px solid var(--primary);
-            position: relative;
-        }
-
+        .remedio-card { background: white; border-radius: 20px; padding: 20px; margin-bottom: 20px; box-shadow: 0 4px 12px rgba(0,0,0,0.08); border-left: 12px solid var(--primary); position: relative; }
         .horario { font-size: 2.2rem; font-weight: bold; color: var(--primary); }
         .nome-med { font-size: 1.6rem; display: block; margin: 10px 0; }
-        .dose-med { font-size: 1.2rem; color: #666; }
-
-        /* Botões */
-        .btn {
-            width: 100%; padding: 25px; border-radius: 15px;
-            border: none; font-size: 1.6rem; font-weight: bold; cursor: pointer;
-        }
-        
+        .btn { width: 100%; padding: 25px; border-radius: 15px; border: none; font-size: 1.6rem; font-weight: bold; cursor: pointer; }
         .btn-check { background: var(--success); color: white; margin-top: 15px; }
-        
-        .btn-flutuante {
-            position: fixed; bottom: 20px; left: 20px; right: 20px;
-            background: var(--primary); color: white; box-shadow: 0 5px 15px rgba(0,0,0,0.3);
-        }
-
-        /* Tela do Alarme (Despertador) */
-        #tela-alarme {
-            display: none; 
-            position: fixed; 
-            inset: 0;
-            background: white; 
-            z-index: 9999; 
-            text-align: center;
-            padding: 40px 20px;
-        }
-
-        .sino-animado { font-size: 100px; animation: balanco 0.5s infinite alternate; margin-bottom: 20px; }
+        .btn-flutuante { position: fixed; bottom: 20px; left: 20px; right: 20px; background: var(--primary); color: white; z-index: 50; }
+        #tela-alarme { display: none; position: fixed; inset: 0; background: white; z-index: 9999; text-align: center; padding: 40px 20px; }
+        .sino-animado { font-size: 100px; animation: balanco 0.5s infinite alternate; }
         @keyframes balanco { from { transform: rotate(-15deg); } to { transform: rotate(15deg); } }
-
-        /* Modal Cadastro */
-        .modal {
-            display: none; position: fixed; inset: 0;
-            background: white; z-index: 100; padding: 30px;
-        }
-
-        input[type="text"], input[type="time"] {
-            width: 100%; padding: 15px; font-size: 1.4rem;
-            margin: 10px 0 20px 0; border: 2px solid #ccc; border-radius: 10px;
-            box-sizing: border-box;
-        }
-
-        .delete-btn {
-            position: absolute; top: 10px; right: 10px;
-            background: none; border: none; font-size: 2rem; color: #ff4444; padding: 10px;
-        }
+        .modal { display: none; position: fixed; inset: 0; background: white; z-index: 100; padding: 30px; }
+        input[type="text"], input[type="time"] { width: 100%; padding: 15px; font-size: 1.4rem; margin: 10px 0 20px 0; border: 2px solid #ccc; border-radius: 10px; box-sizing: border-box; }
+        .delete-btn { position: absolute; top: 10px; right: 10px; background: none; border: none; font-size: 2rem; color: #ff4444; }
     </style>
 </head>
-<body onclick="desbloquearAudio()"> <audio id="somAlerta" loop preload="auto">
+<body onclick="desbloquearAudio()"> 
+    <audio id="somAlerta" loop preload="auto">
         <source src="https://assets.mixkit.co/active_storage/sfx/995/995-preview.mp3" type="audio/mpeg">
     </audio>
 
     <div id="tela-alarme">
         <div class="sino-animado">🔔</div>
-        <h1 style="font-size: 3rem; color: var(--alert); margin: 0;">HORA DO REMÉDIO!</h1>
-        <div style="background: #f0f0f0; padding: 20px; border-radius: 20px; margin: 30px 0;">
-            <h2 id="nome-remedio-alarme" style="font-size: 2.5rem; margin: 0; color: var(--primary);">Nome</h2>
-            <p id="dose-remedio-alarme" style="font-size: 1.8rem; margin: 10px 0 0 0;"></p>
-        </div>
-        <button class="btn btn-check" style="height: 150px; font-size: 2.5rem;" onclick="pararAlarme()">✅ JÁ TOMEI</button>
+        <h1>HORA DO REMÉDIO!</h1>
+        <h2 id="nome-remedio-alarme"></h2>
+        <p id="dose-remedio-alarme"></p>
+        <button class="btn btn-check" onclick="pararAlarme()">✅ JÁ TOMEI</button>
     </div>
 
     <div class="user-bar">
         <div class="user-photo">👤</div>
-        <div class="user-info">
-            <h2>Bem-vindo(a),</h2>
-            <input type="text" id="userName" placeholder="Seu nome aqui" onchange="salvarNome()">
-        </div>
+        <div class="user-info"><h2>Bem-vindo(a),</h2><input type="text" id="userName" onchange="salvarNome()"></div>
     </div>
 
-    <div class="container">
-        <h3 id="titulo-remedios">Meus Remédios de Hoje:</h3>
-        <div id="lista-remedios"></div>
-    </div>
-
+    <div class="container"><div id="lista-remedios"></div></div>
     <button class="btn btn-flutuante" onclick="abrirModal()">➕ ADICIONAR REMÉDIO</button>
 
     <div id="modal-add" class="modal">
-        <h1 style="color: var(--primary);">Novo Remédio</h1>
-        <label>Nome do remédio:</label>
-        <input type="text" id="nome-remedio" placeholder="Ex: Pressão">
-        <label>Horário:</label>
+        <h1>Novo Remédio</h1>
+        <input type="text" id="nome-remedio" placeholder="Nome">
         <input type="time" id="hora-remedio">
-        <label>Dose:</label>
-        <input type="text" id="dose-remedio" placeholder="Ex: 1 comprimido">
-
-        <button class="btn btn-check" onclick="adicionarRemedio()">SALVAR REMÉDIO</button>
-        <button class="btn" style="background: #eee; margin-top: 15px;" onclick="fecharModal()">CANCELAR</button>
+        <input type="text" id="dose-remedio" placeholder="Dose">
+        <button class="btn btn-check" onclick="adicionarRemedio()">SALVAR</button>
+        <button class="btn" onclick="fecharModal()">VOLTAR</button>
     </div>
 
     <script>
+        let audioContext;
         let audioDesbloqueado = false;
 
-        window.onload = function() {
-            const nomeSalvo = localStorage.getItem('usuario_nome');
-            if(nomeSalvo) document.getElementById('userName').value = nomeSalvo;
+        // REGISTRAR O VIGIA (SERVICE WORKER)
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.register('sw.js').then(() => console.log("Vigia ativo!"));
+        }
+
+        window.onload = () => {
+            document.getElementById('userName').value = localStorage.getItem('usuario_nome') || '';
             renderizarRemedios();
-            setInterval(verificarRelogio, 10000); // Checa a cada 10 segundos
+            setInterval(verificarRelogio, 10000);
+            if (Notification.permission !== "granted") Notification.requestPermission();
         };
 
-        // Função vital para o som funcionar em celulares
         function desbloquearAudio() {
             if (!audioDesbloqueado) {
+                audioContext = new (window.AudioContext || window.webkitAudioContext)();
                 const som = document.getElementById('somAlerta');
-                som.play().then(() => {
-                    som.pause();
-                    som.currentTime = 0;
-                    audioDesbloqueado = true;
-                    console.log("Áudio liberado pelo usuário");
-                }).catch(e => console.log("Aguardando interação"));
+                som.play().then(() => { som.pause(); som.currentTime = 0; audioDesbloqueado = true; });
             }
         }
-
-        function salvarNome() {
-            localStorage.setItem('usuario_nome', document.getElementById('userName').value);
-        }
-
-        function abrirModal() { document.getElementById('modal-add').style.display = 'block'; }
-        function fecharModal() { document.getElementById('modal-add').style.display = 'none'; }
 
         function adicionarRemedio() {
             const nome = document.getElementById('nome-remedio').value;
             const hora = document.getElementById('hora-remedio').value;
             const dose = document.getElementById('dose-remedio').value;
-
-            if(!nome || !hora) return alert("Por favor, coloque o nome e a hora.");
-
-            const remedio = { id: Date.now(), nome, hora, dose, ultimoAlerta: '' };
+            if(!nome || !hora) return;
             let lista = JSON.parse(localStorage.getItem('remedios') || '[]');
-            lista.push(remedio);
-            lista.sort((a, b) => a.hora.localeCompare(b.hora));
+            lista.push({ id: Date.now(), nome, hora, dose, ultimoAlerta: '' });
             localStorage.setItem('remedios', JSON.stringify(lista));
-            
-            fecharModal();
-            renderizarRemedios();
-            desbloquearAudio();
+            fecharModal(); renderizarRemedios();
         }
 
         function renderizarRemedios() {
             const divLista = document.getElementById('lista-remedios');
             const lista = JSON.parse(localStorage.getItem('remedios') || '[]');
-            divLista.innerHTML = lista.length ? '' : '<p style="text-align:center; color:#888; padding:20px;">Toque no botão azul para começar.</p>';
-            
+            divLista.innerHTML = '';
             lista.forEach(r => {
-                divLista.innerHTML += `
-                    <div class="remedio-card">
-                        <button class="delete-btn" onclick="excluirRemedio(${r.id})">🗑️</button>
-                        <span class="horario">${r.hora}</span>
-                        <strong class="nome-med">${r.nome}</strong>
-                        <span class="dose-med">${r.dose}</span>
-                        <button class="btn btn-check" onclick="confirmar()">✅ JÁ TOMEI</button>
-                    </div>
-                `;
+                divLista.innerHTML += `<div class="remedio-card">
+                    <button class="delete-btn" onclick="excluirRemedio(${r.id})">🗑️</button>
+                    <span class="horario">${r.hora}</span><br>
+                    <strong class="nome-med">${r.nome}</strong>
+                    <span>${r.dose}</span>
+                    <button class="btn btn-check" onclick="alert('Muito bem!')">✅ JÁ TOMEI</button>
+                </div>`;
             });
         }
 
         function verificarRelogio() {
             const agora = new Date();
-            const horaAtual = agora.getHours().toString().padStart(2, '0') + ":" + 
-                             agora.getMinutes().toString().padStart(2, '0');
-            
+            const horaAtual = agora.getHours().toString().padStart(2, '0') + ":" + agora.getMinutes().toString().padStart(2, '0');
             let lista = JSON.parse(localStorage.getItem('remedios') || '[]');
-            let precisaSalvar = false;
-
             lista.forEach(r => {
                 if (r.hora === horaAtual && r.ultimoAlerta !== horaAtual) {
-                    dispararAlarme(r);
                     r.ultimoAlerta = horaAtual;
-                    precisaSalvar = true;
+                    localStorage.setItem('remedios', JSON.stringify(lista));
+                    dispararAlarme(r);
                 }
             });
-
-            if(precisaSalvar) localStorage.setItem('remedios', JSON.stringify(lista));
         }
 
         function dispararAlarme(r) {
             document.getElementById('nome-remedio-alarme').innerText = r.nome;
             document.getElementById('dose-remedio-alarme').innerText = r.dose;
             document.getElementById('tela-alarme').style.display = 'block';
+            document.getElementById('somAlerta').play();
+            if (navigator.vibrate) navigator.vibrate([1000, 500, 1000]);
             
-            const som = document.getElementById('somAlerta');
-            som.play().catch(e => console.log("Erro ao tocar: clique na tela primeiro"));
-
-            if (navigator.vibrate) navigator.vibrate([500, 500, 500, 500, 500]);
+            // Avisar o vigia para mandar notificação mesmo fora do app
+            if (navigator.serviceWorker.controller) {
+                navigator.serviceWorker.controller.postMessage({ type: 'ALARME', nome: r.nome });
+            }
         }
 
         function pararAlarme() {
             document.getElementById('tela-alarme').style.display = 'none';
-            const som = document.getElementById('somAlerta');
-            som.pause();
-            som.currentTime = 0;
+            document.getElementById('somAlerta').pause();
         }
 
-        function excluirRemedio(id) {
-            if(confirm("Deseja apagar este remédio?")) {
-                let lista = JSON.parse(localStorage.getItem('remedios') || '[]');
-                lista = lista.filter(r => r.id !== id);
-                localStorage.setItem('remedios', JSON.stringify(lista));
-                renderizarRemedios();
-            }
+        function abrirModal() { document.getElementById('modal-add').style.display = 'block'; }
+        function fecharModal() { document.getElementById('modal-add').style.display = 'none'; }
+        function salvarNome() { localStorage.setItem('usuario_nome', document.getElementById('userName').value); }
+        function excluirRemedio(id) { 
+            let lista = JSON.parse(localStorage.getItem('remedios') || '[]');
+            localStorage.setItem('remedios', JSON.stringify(lista.filter(r => r.id !== id)));
+            renderizarRemedios();
         }
-
-        function confirmar() { alert("Muito bem! Continue cuidando da sua saúde."); }
     </script>
 </body>
 </html>
