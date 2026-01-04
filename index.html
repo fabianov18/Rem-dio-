@@ -119,17 +119,25 @@
         }
 
         function dispararAlarme(r) {
-            document.getElementById('nome-remedio-alarme').innerText = r.nome;
-            document.getElementById('dose-remedio-alarme').innerText = r.dose;
-            document.getElementById('tela-alarme').style.display = 'block';
-            document.getElementById('somAlerta').play();
-            if (navigator.vibrate) navigator.vibrate([1000, 500, 1000]);
-            
-            // Avisar o vigia para mandar notificação mesmo fora do app
-            if (navigator.serviceWorker.controller) {
-                navigator.serviceWorker.controller.postMessage({ type: 'ALARME', nome: r.nome });
-            }
-        }
+    // 1. Som interno (para quando o app está aberto ou em segundo plano)
+    const som = document.getElementById('somAlerta');
+    som.play().catch(() => {
+        console.log("Som bloqueado, tentando via notificação...");
+    });
+
+    document.getElementById('nome-remedio-alarme').innerText = r.nome;
+    document.getElementById('dose-remedio-alarme').innerText = r.dose;
+    document.getElementById('tela-alarme').style.display = 'block';
+
+    // 2. Notificação de Sistema (O que faz vibrar e aparecer com app fechado)
+    if ('serviceWorker' in navigator && navigator.serviceWorker.controller) {
+        navigator.serviceWorker.controller.postMessage({
+            type: 'ALARME',
+            nome: r.nome,
+            dose: r.dose
+        });
+    }
+}
 
         function pararAlarme() {
             document.getElementById('tela-alarme').style.display = 'none';
